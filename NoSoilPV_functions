@@ -23,7 +23,6 @@ def segm_soiling_profile(pr, cleanings, cleaning_with_last=False,
     Returns a soiling ratio profile by combining cleaning dates and 
     segmented regression. Only periods longer than certain set 
     thresholds (min_len_dryperiod) are considered.
-    
 
     Parameters
     ----------
@@ -43,7 +42,6 @@ def segm_soiling_profile(pr, cleanings, cleaning_with_last=False,
         Dataframe containing the daily soiling ratio. 
     changepoints: list
         List of dates in which contrinuous cahnge points occurred.
-
     """
     
     #Check if PR dataframe has datetime index
@@ -67,7 +65,6 @@ def segm_soiling_profile(pr, cleanings, cleaning_with_last=False,
     cleanings.extend([sr.index[0], sr.index[-1]])
     cleanings=sorted(list(dict.fromkeys(cleanings)))
     
-
     for i, j in zip(cleanings[:-1], cleanings[1:]):
         #Set effective start and end dates depending on value of cleaning_with_last
         if cleaning_with_last:

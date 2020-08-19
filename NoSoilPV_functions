@@ -76,6 +76,7 @@ def segm_soiling_profile(pr, cleanings, cleaning_with_last=False,
         #Calculate soiling rates for dry periods longer than min_len_dryperiod
         if len(y)>min_len_dryperiod:
             p,e = curve_fit(piecewise_linear, x, y, p0=[7, 1,0,0], bounds=[(0,0,-np.inf, -np.inf),(len(y),1,0,+np.inf)])
+            #Ignore change point if too close to a cleaning
             if p[0]>days_btw_cleaning_cp and p[0]<len(y)-days_btw_cleaning_cp:
                 z=piecewise_linear(x, *p)
                 sr.loc[i_real: j_real]=z

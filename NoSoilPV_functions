@@ -1,0 +1,85 @@
+import pandas as pd
+from scipy.optimize import curve_fit
+import numpy as np
+import datetime
+import pv_soiling as soiling
+
+def check_cleaning_list(x):
+    '''
+    Check if an obkect is a list or an array and convert to list
+    '''
+    if not isinstance(x, list) and not isinstance(x, np.ndarray):
+        raise ValueError('The list of cleanings is not a list or a numpy array')
+    return list(x)
+
+def piecewise_linear(x, x0, b, k1, k2):
+    cond_list=[x<x0, x>=x0]
+    func_list=[lambda x: k1*x+b, lambda x: k1*x+b+k2*(x-x0)]
+    return np.piecewise(x, cond_list, func_list)
+
+def segm_soiling_profile(pr, cleanings, cleaning_with_last=False,
+                         days_btw_cleaning_cp=7, min_len_dryperiod=14):
+    """
+    Returns a soiling ratio profile by combining cleaning dates and 
+    segmented regression. Only periods longer than certain set 
+    thresholds (min_len_dryperiod) are considered.
+    
+
+    Parameters
+    ----------
+    pr : 
+        Dataframe containing the daily performance ratio.
+    cleanings : array or list
+        list of dates in whcih cleanings occurred.
+    cleaning_with_last : bool, optional (default=False)
+        Cleaning dates considered part of the previous deposition period.
+    days_btw_cleaning_cp : numeric (default=7)
+        Minimum number of days accepted between cleanings and change points. 
+    min_len_dryperiod: numeric (default=14) 
+        Minimum lenght of valid dry periods
+    Returns
+    -------
+    sr: numeric
+        Dataframe containing the daily soiling ratio. 
+    changepoints: list
+        List of dates in which contrinuous cahnge points occurred.
+
+    """
+    
+    #Check if PR dataframe has datetime index
+    if not isinstance(pr.index, pd.DatetimeIndex):
+        raise ValueError('The time series does not have DatetimeIndex')
+    
+    #Creating Soiling Ratio series
+    sr=pd.Series(np.nan, index=pr.index)
+    
+    #Check if cleaning dates list is not list or numpy array and convert to list
+    check_cleaning_list(cleanings)
+    
+    #Convert cleaning dates in datetime objects, if not they are not already
+    if not all(isinstance(n, datetime.datetime) for n in cleanings):
+        cleanings=[pd.to_datetime(xi) for xi in cleanings]    
+
+    #Remove cleanings outside of the analyzed time series
+    cleanings=[pd.to_datetime(xi) for xi in cleanings if xi>=sr.index[0] and xi<=sr.index[-1]]   
+
+    #Add start and end dates of time series as cleanings, and remove if duplicated
+    cleanings.extend([sr.index[0], sr.index[-1]])
+    cleanings=sorted(list(dict.fromkeys(cleanings)))
+    
+
+    for i, j in zip(cleanings[:-1], cleanings[1:]):
+        #Set effective start and end dates depending on value of cleaning_with_last
+        if cleaning_with_last:
+            i_real, j_real=i+datetime.timedelta(days=1), j
+        else:
+            i_real,j_real=i, j-datetime.timedelta(days=1)           
+        y=pr[i_real:j_real].values
+        x=np.arange(0.,len(y))
+        #Calculate soiling rates for dry periods longer than min_len_dryperiod
+        if len(y)>min_len_dryperiod:
+            p,e = curve_fit(piecewise_linear, x, y, p0=[7, 1,0,0], bounds=[(0,0,-np.inf, -np.inf),(len(y),1,0,+np.inf)])
+            if p[0]>days_btw_cleaning_cp and p[0]<len(y)-days_btw_cleaning_cp:
+                z=piecewise_linear(x, *p)
+                sr.loc[i_real: j_real]=z
+    return sr

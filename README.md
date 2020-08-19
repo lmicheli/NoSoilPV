@@ -12,7 +12,7 @@ Leonardo Micheli, lmicheli@jaen.es
 Developed in Python 3.7.0
 
 
-Available files:
+Available functions:
 ==================
 ## segm_soiling_profile
 Code for extracting soiling loss profile from performance metrics trhough the segmentation of the deposition periods.

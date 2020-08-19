@@ -6,7 +6,7 @@ import pv_soiling as soiling
 
 def check_cleaning_list(x):
     '''
-    Check if an obkect is a list or an array and convert to list
+    Check if an object is a list or an array and convert to list
     '''
     if not isinstance(x, list) and not isinstance(x, np.ndarray):
         raise ValueError('The list of cleanings is not a list or a numpy array')
@@ -29,19 +29,19 @@ def segm_soiling_profile(pr, cleanings, cleaning_with_last=False,
     pr : 
         Dataframe containing the daily performance ratio.
     cleanings : array or list
-        list of dates in whcih cleanings occurred.
+        list of dates in which cleanings occurred.
     cleaning_with_last : bool, optional (default=False)
         Cleaning dates considered part of the previous deposition period.
     days_btw_cleaning_cp : numeric (default=7)
         Minimum number of days accepted between cleanings and change points. 
     min_len_dryperiod: numeric (default=14) 
-        Minimum lenght of valid dry periods
+        Minimum length of valid dry periods
     Returns
     -------
     sr: numeric
         Dataframe containing the daily soiling ratio. 
     changepoints: list
-        List of dates in which contrinuous cahnge points occurred.
+        List of dates in which continuous change points occurred.
     """
     
     #Check if PR dataframe has datetime index

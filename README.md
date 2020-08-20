@@ -3,7 +3,7 @@
 
 *Awarded 2017 Marie Skłodowska-Curie Actions (MSCA) Individual Fellowships (IF) proposal*
 
-This repository collects the functions developed during the NoSoilPV project.
+This in-development repository collects the functions developed during the NoSoilPV project.
 
 Leonardo Micheli, lmicheli@jaen.es
 
@@ -15,7 +15,7 @@ Developed in Python 3.7.0
 Available functions in the soiling_functions file:
 ==================
 ## segm_soiling_profile
-Code for extracting soiling loss profile from performance metrics through the segmentation of the deposition periods.
+Code for segmentation of soiling deposition periods.
 
 ### Citing
 When using this code, please reference:  

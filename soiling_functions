@@ -9,7 +9,7 @@ def piecewise_linear(x, x0, b, k1, k2):
     func_list=[lambda x: k1*x+b, lambda x: k1*x+b+k2*(x-x0)]
     return np.piecewise(x, cond_list, func_list)
 
-def segmented_soiling_period(pr, cleaning_with_previous=False, fill_method='bfill',
+def segmented_soiling_period(pr, fill_method='bfill',
                          days_clean_vs_cp=7, initial_guesses=[7, 1,0,0],
                          bounds=None, min_r2=0.1):
     """
@@ -39,7 +39,8 @@ def segmented_soiling_period(pr, cleaning_with_previous=False, fill_method='bfil
     cp_date: datetime
         Datetime in which continuous change points occurred.
         None if segmentation was not possible.
-    """        
+    """     
+    
     #Check if PR dataframe has datetime index
     if not isinstance(pr.index, pd.DatetimeIndex):
         raise ValueError('The time series does not have DatetimeIndex')
@@ -54,6 +55,7 @@ def segmented_soiling_period(pr, cleaning_with_previous=False, fill_method='bfil
      
     y=pr.values  
     x=np.arange(0.,len(y))
+    
     #Fit soiling profile with segmentation
     p,e = curve_fit(piecewise_linear, x, y, p0=initial_guesses, bounds=bounds)
     
